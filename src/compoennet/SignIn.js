@@ -1,30 +1,68 @@
 import React, { useState, useRef } from "react";
 import Header from "./Header";
 import { checkvaliddata } from "../utils/validate";
-import { createUserWithEmailAndPassword} from "firebase/auth"
+import { createUserWithEmailAndPassword,signInWithEmailAndPassword, updateProfile} from "firebase/auth"
 import {auth} from "../utils/firebase"
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
 
 function SignIn() {
   const [signup, setSignup]= useState(true)
   const [error, setError]= useState(null)
+  const dispatch= useDispatch() 
   const name = useRef(null)
   const email = useRef(null)
   const password = useRef(null)
+  const navigate = useNavigate()
  //validate the user that is login or sign up
+
+
   const handleButtonClick =()=>{
     checkvaliddata()
     const message = checkvaliddata(email.current.value, password.current.value)
-    // console.log(message)
     setError(message)
    if(message) return;
+   if(!signup){ 
+  // signInWithEmailAndPassword(auth, email.current.value, password.current.value)
+  // .then((userCredential) => {
+  //   const user = userCredential.user;
+  //   console.log(user) 
+  //   navigate("/browse")
+  // })
+  // .catch((error) => {
+  //   const errorCode = error.code;
+  //   const errorMessage = error.message ;
+  //   setError(error.code)
+  // });  
 
-   if(!signup){
-  // signup lo 
   createUserWithEmailAndPassword(auth, email.current.value, password.current.value )
   .then((userCredential) => {
     // Signed up 
     const user = userCredential.user;
+    
+    updateProfile(user,{
+  displayName:name.current.value,
+  photoURL:"https://avatars.githubusercontent.com/u/96436710?v=4"
+})
+.then(()=>{
+  const {uid, email, displayName,photoURL} = auth.currentUser
+  dispatch(
+    addUser({
+      uid:uid,
+      email:email, 
+      displayName:displayName, 
+      photoURL:photoURL
+    })
+    
+  )
+  navigate("/browse")  
+})
+.catch((error)=>{
+  setError(error.message) 
+})
     console.log(user)
+ 
     // ...
   })
   .catch((error) => {
@@ -33,14 +71,28 @@ function SignIn() {
     setError(errorCode, errorMessage)
     // ..
   });
-   }else{
-    //signin logic
-   }
+
+
+
+   }else{ 
+    
+      signInWithEmailAndPassword(auth, email.current.value, password.current.value)
+  .then((userCredential) => {
+    const user = userCredential.user;
+    console.log(user) 
+    navigate("/browse")
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    setError(error.code)
+  }); 
+
+  }  
+
   }
-
-
   function signuptoggle(){
-    setSignup(!signup)
+    setSignup(!signup) 
     console.log("true")
   }
   return (
@@ -62,7 +114,7 @@ function SignIn() {
         onSubmit={(e)=>e.preventDefault()}
           className="relative z-10 w-[90vh]  max-w-md rounded-md p-8 sm:p-10 text-white bg-black/60 backdrop-blur-sm"
           style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-        >
+        > 
           <h1 className="mb-6 text-2xl sm:text-3xl font-semibold">{signup ? "SignUp" : "Sign In"}
 </h1>
             
@@ -119,4 +171,3 @@ function SignIn() {
 
 export default SignIn;
 
-// useRef
