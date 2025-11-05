@@ -1,20 +1,23 @@
 import React, { useState, useRef } from "react";
 import Header from "./Header";
+
 import { checkvaliddata } from "../utils/validate";
 import { createUserWithEmailAndPassword,signInWithEmailAndPassword, updateProfile} from "firebase/auth"
 import {auth} from "../utils/firebase"
-import { useNavigate } from "react-router-dom";
+
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
+import { BACKGROUND_IMG } from "../utils/constants";
 
 function SignIn() {
+ 
   const [signup, setSignup]= useState(true)
   const [error, setError]= useState(null)
   const dispatch= useDispatch() 
   const name = useRef(null)
   const email = useRef(null)
   const password = useRef(null)
-  const navigate = useNavigate()
+  
  //validate the user that is login or sign up
 
 
@@ -24,69 +27,54 @@ function SignIn() {
     setError(message)
    if(message) return;
    if(!signup){ 
-  // signInWithEmailAndPassword(auth, email.current.value, password.current.value)
-  // .then((userCredential) => {
-  //   const user = userCredential.user;
-  //   console.log(user) 
-  //   navigate("/browse")
-  // })
-  // .catch((error) => {
-  //   const errorCode = error.code;
-  //   const errorMessage = error.message ;
-  //   setError(error.code)
-  // });  
-
-  createUserWithEmailAndPassword(auth, email.current.value, password.current.value )
+  signInWithEmailAndPassword(auth, email.current.value, password.current.value)
   .then((userCredential) => {
-    // Signed up 
     const user = userCredential.user;
     
-    updateProfile(user,{
-  displayName:name.current.value,
-  photoURL:"https://avatars.githubusercontent.com/u/96436710?v=4"
-})
-.then(()=>{
-  const {uid, email, displayName,photoURL} = auth.currentUser
-  dispatch(
-    addUser({
-      uid:uid,
-      email:email, 
-      displayName:displayName, 
-      photoURL:photoURL
-    })
-    
-  )
-  navigate("/browse")  
-})
-.catch((error)=>{
-  setError(error.message) 
-})
-    console.log(user)
- 
-    // ...
+
   })
   .catch((error) => {
     const errorCode = error.code;
-    const errorMessage = error.message;
-    setError(errorCode, errorMessage)
-    // ..
-  });
-
-
-
+    const errorMessage = error.message ;
+    setError(error.code)
+  });  
    }else{ 
     
-      signInWithEmailAndPassword(auth, email.current.value, password.current.value)
-  .then((userCredential) => {
-    const user = userCredential.user;
-    console.log(user) 
-    navigate("/browse")
+    createUserWithEmailAndPassword(auth, email.current.value, password.current.value )
+    .then((userCredential) => {
+      // Signed up 
+      const user = userCredential.user;
+      console.log(user)
+      updateProfile(user,{
+    displayName:name.current.value,
+    photoURL:"https://avatars.githubusercontent.com/u/96436710?v=4"
   })
-  .catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    setError(error.code)
-  }); 
+  .then(()=>{
+    const {uid, email, displayName,photoURL} = auth.currentUser
+    dispatch(
+      addUser({
+        uid:uid,
+        email:email,  
+        displayName:displayName, 
+        photoURL:photoURL
+      })
+      
+    )
+
+  })
+  .catch((error)=>{
+    setError(error.message) 
+  })
+      console.log(user)
+   
+      // ...
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      setError(errorCode, errorMessage)
+      // ..
+    });
 
   }  
 
@@ -100,7 +88,7 @@ function SignIn() {
       <Header />
       <div className="absolute inset-0 -z-10">
         <img
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/9ba9f0e2-b246-47f4-bd1f-3e84c23a5db8/web/IN-en-20251020-TRIFECTA-perspective_d6da84e9-6145-4b1e-bb51-e402c966a045_medium.jpg"
+          src={BACKGROUND_IMG}
           alt="background"
           className="w-full h-full object-cover"
         />
