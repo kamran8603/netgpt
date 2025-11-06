@@ -44,7 +44,7 @@ function SignIn() {
     .then((userCredential) => {
       // Signed up 
       const user = userCredential.user;
-      console.log(user)
+      
       updateProfile(user,{
     displayName:name.current.value,
     photoURL:"https://avatars.githubusercontent.com/u/96436710?v=4"
@@ -65,7 +65,7 @@ function SignIn() {
   .catch((error)=>{
     setError(error.message) 
   })
-      console.log(user)
+      
    
       // ...
     })

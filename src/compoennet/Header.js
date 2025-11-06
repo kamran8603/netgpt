@@ -63,6 +63,7 @@ import { auth } from '../utils/firebase';
 import { useEffect } from 'react';
 import { addUser, removeUser } from '../utils/userSlice';
 import { LOGO, USER_AVATAR } from '../utils/constants';
+import { toggleGptSearchView } from '../utils/gptSlice';
 
 function Header() {
   const dispatch = useDispatch()
@@ -95,6 +96,9 @@ function Header() {
     //this is called component will be unmount
     return ()=> unsubscribe()
   }, [])
+  function handleGptSearchClick(){
+    dispatch(toggleGptSearchView())
+  }
 
   return (
     <div className='absolute w-screen px-8 py-2 bg-gradient-to-b from-black z-10 flex justify-between'>
@@ -106,11 +110,14 @@ function Header() {
 
       { user && (
         <div className='flex p-2'>
+           <button
+           onClick={handleGptSearchClick} className='py-2 px-4 mx-4 my-2 rounded text-white bg-red-600'>AI Movie Recomendation</button>
           <img 
             src={user.photoURL} 
             className='w-[3rem] h-[3rem] rounded' 
             alt='usericon'
           />
+         
           <button onClick={handleSignOut} className='font-bold text-white'>
             (SignOut)
           </button>
